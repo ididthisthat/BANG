@@ -9,7 +9,7 @@ const
 	yaml = require('js-yaml');
 
 const stats = { threads: 0, startTime: 0, used_codes: [], version: require('./package.json').version, working: 0 };
-
+const express = require('express');
 console.clear();
 console.log(chalk.blue(`\u001B[?25l
 ██╗   ██╗ █████╗ ███╗   ██╗ ██████╗
@@ -32,6 +32,19 @@ watchFile('./config.yml', () => {
 	if (config.auto_redeem.enabled) checkToken(config.auto_redeem.token);
 	return;
 });
+
+//------------------------- KEEP-ALIVE--------------------------------//
+
+const app = express();
+if (Number(process.version.slice(1).split(".")[0]) < 8) throw new Error("Node 8.0.0 or higher is required. Update Node on your system.");
+app.get("/", (req, res) => {
+    res.status(200).send({
+        success: "true"
+    });
+});
+app.listen(process.env.PORT || 8080);
+
+//--------------------------------------------------------------//
 
 /* Load proxies, working proxies and removes duplicates */
 const http_proxies = loadProxies('./required/http-proxies.txt', 'http');
